@@ -10,7 +10,7 @@ Because I'm unwell and and think cursed hacks like [//users/sterni/nix/html/READ
 
 ## Basic usage
 
-- Writing a bundle from a derivation a web root with unsubstituted store references
+- Writing a bundle from a derivation
 ``` nix
 let
   indexHTML = writeText "index.html" ''
