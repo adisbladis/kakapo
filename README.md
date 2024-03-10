@@ -34,3 +34,7 @@ kakapo.bundleTree "my-webroot" { } {
   '';
 }
 ```
+
+## Use with `htmlNix'
+
+Check out [./templates/htmlNix](./templates/htmlNix).

@@ -30,6 +30,14 @@
             in
             pkgs.callPackages ./default.nix { }
           );
+
+      templates = {
+        htmlNix = {
+          path = ./templates/htmlNix;
+          description = "Usage with htmlNix";
+        };
+        default = self.templates.htmlNix;
+      };
     }
   );
 }

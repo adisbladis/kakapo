@@ -14,19 +14,20 @@ fix (self: {
   */
   makeBundle =
     root:
-    assert isDerivation root;
-    runCommand "${root.name}-bundle" {
-      dontUnpack = true;
-      dontConfigure = true;
-      nativeBuildInputs = [ python3 ];
-      exportReferencesGraph = [ "graph" root ];
-      inherit (root) meta;
-      passthru = root.passthru or { };
-    } ''
-      cp -r ${root} $out
-      chmod +w -R $out
-      python3 ${./make-bundle.py} graph $out
-    '';
+      assert isDerivation root;
+      runCommand "${root.name}-bundle"
+        {
+          dontUnpack = true;
+          dontConfigure = true;
+          nativeBuildInputs = [ python3 ];
+          exportReferencesGraph = [ "graph" root ];
+          inherit (root) meta;
+          passthru = root.passthru or { };
+        } ''
+        cp -r ${root} $out
+        chmod +w -R $out
+        python3 ${./make-bundle.py} graph $out
+      '';
 
   /*
     Create a file tree from an attribute set of strings & derivations.
@@ -49,26 +50,28 @@ fix (self: {
     «derivation /nix/store/190nn2hhqah4r3s3bxvfz0ms6r5i5v0j-my-webroot.drv»
     ```
   */
-  bundleTree = name: attrs: tree: let
-    mapTree = mapAttrs (name: value': rec {
-      type =
-        if isDerivation value' then "derivation"
-        else if isAttrs value' then "set"
-        else if isString value' then "string"
-        else throw "Unsupported type in tree";
-      value = if type != "set" then value' else mapTree value';
-    });
-    drv =
-      runCommand
-      name
-      (attrs // {
-        __structuredAttrs = true;
-        tree = mapTree tree;
-        passthru = attrs.passthru or { } // {
-          tree = tree;
-        };
-      })
-      "${python3.interpreter} ${./bundle-tree.py} .attrs.json $out";
-  in self.makeBundle drv;
+  bundleTree = name: attrs: tree:
+    let
+      mapTree = mapAttrs (name: value': rec {
+        type =
+          if isDerivation value' then "derivation"
+          else if isAttrs value' then "set"
+          else if isString value' then "string"
+          else throw "Unsupported type in tree";
+        value = if type != "set" then value' else mapTree value';
+      });
+      drv =
+        runCommand
+          name
+          (attrs // {
+            __structuredAttrs = true;
+            tree = mapTree tree;
+            passthru = attrs.passthru or { } // {
+              tree = tree;
+            };
+          })
+          "${python3.interpreter} ${./bundle-tree.py} .attrs.json $out";
+    in
+    self.makeBundle drv;
 
 })
